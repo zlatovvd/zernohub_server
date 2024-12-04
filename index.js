@@ -1,7 +1,106 @@
+const fs = require('fs').promises;
 const  axios = require('axios');
+const { XMLParser } = require('fast-xml-parser');
+
+
+const xml = `
+<?xml version="1.0" encoding="windows-1251"?>
+<Data>
+<Document>
+<!--Серія та номер документу-->
+<Document_Seria_Number>ЦФ165273</Document_Seria_Number>
+<!--Поточній номер документу-->
+<Current_Number>47</Current_Number>
+<!--Тип документа 1: Складська квитанція-->
+<Document_Type>4</Document_Type>
+<!--Номер реєстру накладних-->
+<Invoice_Number>1047</Invoice_Number>
+<!--Дата прийняття зерна-->
+<Grain_Receive_Date>28.11.2024 00:00:00</Grain_Receive_Date>
+<!--Вид зберігання 1: Загальне-->
+<Grain_Type>1</Grain_Type>
+<!--Ідентифікатор виду зерна-->
+<Grain_Kind>38</Grain_Kind>
+<!--Ідентифікатор класу зерна-->
+<Grain_Class>130</Grain_Class>
+<!--Рік врожаю-->
+<Harvest_Year>2024</Harvest_Year>
+<!--Вага зерна залікова-->
+<Grain_Weight>594660</Grain_Weight>
+<!--Вага зерна фізична-->
+<Grain_Weight_All>594660</Grain_Weight_All>
+<!--інші показники якості зерна-->
+<Grain_Quality_Other> Органическая примесь 0,4 Поврежденные 0,6 Проход сита 1,6 Щуплые  Битые и поеденные 5,8</Grain_Quality_Other>
+<!--Кількість зерна для видачі-->
+<Grain_For_Issue>згідно акта розрахунку</Grain_For_Issue>
+<!--Номер документу, що засвідчує якість зерна-->
+<Attest_Document_Number>423</Attest_Document_Number>
+<!--Назва документу, що засвідчує якість зерна-->
+<Attest_Document_Name>Аналізна картка</Attest_Document_Name>
+<!--Дата документу, що засвідчує якість зерна-->
+<Attest_Document_Date>28.11.2024 00:00:00</Attest_Document_Date>
+<!--Ким видано документ, що засвідчує якість зерна-->
+<Attest_Document_Issuer>Товариство з обмеженою відповідальністю "Саратський КХП"</Attest_Document_Issuer>
+<!--Тип зберігання-->
+<Storage_Type>2</Storage_Type>
+<!--Примітки про зерно-->
+<Description>на зберігання</Description>
+<!--тип особи-->
+<Client_Type>1</Client_Type>
+<!--Код ЄДРПОУ/ідентиф. код клиента-->
+<Client_Code>45369450</Client_Code>
+<!--Назва організації/ПІБ особи клієнта-->
+<Client_Name>ТОВ "ВЕСТ ЕУНОМІЯ ГРУП"</Client_Name>
+<!--Адреса клієнта-->
+<Client_Address>Украина, 46001, Тернопільська, Тернопільській, Тернопіль, Лукіяновича Дениса, дом № 8</Client_Address>
+<!--Номер договору з клієнтом-->
+<Agreement_Number></Agreement_Number>
+<!--Дата договору з клієнтом-->
+<Agreement_Date>.. 00:00:00</Agreement_Date>
+<!--Надходження зерна:-->
+<!--1 - Так-->
+<!--0 - Ні-->
+<Revenue>1</Revenue>
+<!--Показники якості зерна-->
+<GrainParameters>
+<!-- зараженность-->
+<GrainParameter>
+<Id>7</Id>
+<TypeOfValue>4</TypeOfValue>
+<Value>виявлено</Value>
+</GrainParameter>
+<!--влажность зерна-->
+<GrainParameter>
+<Id>8</Id>
+<TypeOfValue>3</TypeOfValue>
+<Value>13,30</Value>
+</GrainParameter>
+<!--зерновая примесь-->
+<GrainParameter>
+<Id>9</Id>
+<TypeOfValue>3</TypeOfValue>
+<Value>6,40</Value>
+</GrainParameter>
+<!--сорность-->
+<GrainParameter>
+<Id>10</Id>
+<TypeOfValue>3</TypeOfValue>
+<Value>2,00</Value>
+</GrainParameter>
+</GrainParameters>
+</Document>
+</Data>
+`;
+
+const parser = new XMLParser();
+
+let obj = parser.parse(xml);
+
+const document = obj.Data.Document;
+
+
 
 const regName = 'mrwdggas';
-
 
 // Продакс сервер
 
@@ -13,8 +112,6 @@ const baseUrl = 'krrt.ncr.gov.ua';
 
 const organizationId = '1f1af0cf-2549-49b9-85ad-426c730429d4';
 
-const stockId = '4df4cb8b-bd61-4451-88df-74c4c75cc7fa';
-
 
 
 // Тестовий сервер
@@ -24,10 +121,6 @@ const stockId = '4df4cb8b-bd61-4451-88df-74c4c75cc7fa';
 // const clientSecret = 'me9fqi3wbdzvghg52outqdibi656p9ezrck6';
 
 // const baseUrl = 'krrt-dev.ncr.gov.ua';
-
-
-//baseUrl = "https://platform-keycloak.apps.krrt-dev.ncr.gov.ua";
-
 
 
 // п2.1
@@ -137,14 +230,16 @@ const getStockId = async () => {
 
 	const obj = JSON.parse(stockId.data.resultVariables.data);
 
-	console.log(obj[0]);
+	// console.log(obj[0]);
+
+	return stockId;
 
 }
 
 
 // п 4.1
 
-const getBlankTypes = async () => {
+const getBlankTypes = async (documentType) => {
 	const token = await getToken();
 
 	const instance = axios.create({
@@ -152,14 +247,23 @@ const getBlankTypes = async () => {
 		headers: { Authorization: `Bearer ${token}` },
 	})
 
-	const blankTypes = await instance.get('/api-blank-types')
-	console.log(blankTypes);
+	const blankTypes = await instance.get('/api-blank-types');
+
+	let blankTypeCode = '';
+
+	if (documentType === 4) {
+		blankTypeCode = 'eTicket';
+	}
+
+	const blankType = blankTypes.data.find(item => item.blankTypeCode === blankTypeCode);
+	return blankType;
+
 }
 
 
 //  4.2
 
-const getStorageKinds = async () => {
+const getStorageKinds = async (grainType) => {
 
 	const token = await getToken();
 
@@ -172,13 +276,21 @@ const getStorageKinds = async () => {
 
 	const storageKinds = await instance.get(url);
 
-	console.log(storageKinds.data);
+	let kindCode = '';
+
+	if (grainType === 1) {
+		kindCode = '1';
+	};
+
+	const storageKind = storageKinds.data.find(item => item.storageKindCode === kindCode);
+
+	return storageKind;
 
 }
 
 // п 4.3
 
-const getStorageType = async () => {
+const getStorageType = async (storage_Type) => {
 
 	const token = await getToken();
 
@@ -189,16 +301,26 @@ const getStorageType = async () => {
 		headers: { Authorization: `Bearer ${token}` },		
 	});
 
-	const storageType = await instance.get(url);
+	const storageTypes = await instance.get(url);
 
-	console.log(storageType.data);
+	let storageTypeCode = '';
+
+	if (storage_Type === 1) {
+		storageTypeCode = 'Separated';
+	} else {
+		storageTypeCode = 'Impersonal';
+	}
+
+	const storageType = storageTypes.data.find(item => item.storageTypeCode === storageTypeCode);
+
+	return storageType;
 
 }
 
 
 //  п 4.4
 
-const getGrainProducts = async () => {
+const getGrainProducts = async (product) => {
 
 	const token = await getToken();
 
@@ -211,7 +333,44 @@ const getGrainProducts = async () => {
 
 	const grainProducts = await instance.get(url);
 
-	console.log(grainProducts.data)
+	let productName = '';
+
+	switch(product) {
+		case 38:
+			productName = 'Горох';
+			break;
+		case 44:
+			productName = 'Кукурудза';
+			break;
+		case 401:
+			productName = 'Насіння ріпаку';
+			break;
+		case 406:
+			productName = 'Просо';
+			break;			
+		case 400:
+			productName = 'Пшениця м\'яка';
+			break;			
+		case 404:
+			productName = 'Соняшник';
+			break;			
+		case 409:
+			productName = 'Сорго';
+			break;			
+		case 410:
+			productName = 'Сочевиця';
+			break;			
+		case 402:
+			productName = 'Соя';
+			break;			
+		case 67:
+			productName = 'Ячмінь';
+			break;				
+	}
+
+	const grainProduct = grainProducts.data.find(item => item.grainProductName === productName)
+
+	return grainProduct;
 
 }
 
@@ -219,13 +378,11 @@ const getGrainProducts = async () => {
 // п 4.5
 
 
-const getNormativeDocuments = async () => {
-
-	const grainProductId = 'c714a4ef-1cdf-4be7-9d26-4404e79ebbb0';
+const getNormativeDocuments = async (productId) => {
 
 	const token = await getToken();
 
-	const url = `/api-normative-documents?grainProductId=${grainProductId}`;
+	const url = `/api-normative-documents?grainProductId=${productId}`;
 
 	const instance = axios.create({
 		baseURL: `https://external-service-api-${regName}-main.apps.${baseUrl}/api/gateway/data-factory`,
@@ -234,20 +391,18 @@ const getNormativeDocuments = async () => {
 
 	const normativeDocuments = await instance.get(url);
 
-	console.log(normativeDocuments.data);
+	return normativeDocuments.data[0];
 
 }
 
 
 // п 4.6
 
-const getGrainProductClasses = async () => {
-
-	const grainProductId = 'c714a4ef-1cdf-4be7-9d26-4404e79ebbb0'; 
+const getGrainProductClasses = async (productId) => {
 
 	const token = await getToken();
 
-	const url = `/api-grain-product-classes?gpDocClassProduct=${grainProductId}`;
+	const url = `/api-grain-product-classes?gpDocClassProduct=${productId}`;
 
 	const instance = axios.create({
 		baseURL: `https://external-service-api-${regName}-main.apps.${baseUrl}/api/gateway/data-factory`,
@@ -256,7 +411,7 @@ const getGrainProductClasses = async () => {
 
 	const grainProductClasses = await instance.get(url);
 
-	console.log(grainProductClasses.data);
+	return grainProductClasses.data[0];
 
 }
 
@@ -265,11 +420,13 @@ const getGrainProductClasses = async () => {
 
 const getProductQis = async () => {
 
-	const grainProductId = 'c714a4ef-1cdf-4be7-9d26-4404e79ebbb0';
+	const grainProductId = 'c2db7c1e-e7ee-4bbf-afe4-560a97f66bc6';
+	const blankTypeId = '5772e505-bc06-42bd-8133-a202317f7a08';
+	const grainProductClass = '63a260cf-0e2c-4f13-b688-bc15d7ab3733';
 
 	const token = await getToken();
 
-	const url = `/api-product-qis?gpDocQiSetGpId=${grainProductId}`;
+	const url = `/api-product-qis?gpDocQiSetGpId=${grainProductId}&gpDocQiSetBlankTypeId=${blankTypeId}&gpDocQiSetGpClassId=${grainProductClass}`;
 
 	const instance = axios.create({
 		baseURL: `https://external-service-api-${regName}-main.apps.${baseUrl}/api/gateway/data-factory`,
@@ -317,7 +474,8 @@ const getStockBlankTypes = async () => {
 	const stockBlankTypes = await instance.get(url);
 	
 	console.log("-----------------Answer--------------------------------------");
-
+	console.log(stockId);
+	console.log("-----------------Answer 2-------------------------------------");
 	console.log(stockBlankTypes.data);
 }
 
@@ -330,38 +488,37 @@ const importCDZ = async () => {
 
 	const instance = axios.create({
     baseURL:
-      "https://bp-webservice-gateway-mrwdggas-main.apps.krrt-dev.ncr.gov.ua/api",
+      `https://bp-webservice-gateway-${regName}-main.apps.${baseUrl}/api`,
     headers: { "Content-Type": "application/json", "x-access-token": token },
   });
 
-	//const headers =  { "Content-Type": "application/json", "x-access-token": token }
 
-const res = await instance.post("/start-bp", cdz);
+	const res = await instance.post("/start-bp", JSON.stringify(cdz));
 
 	console.log("-----------------Answer--------------------------------------");
 	
-	console.log(headers);
+	console.log(res.data);
 }
 
 
 
 
-//importCDZ();
+//  importCDZ();
 
 // getBlankTypes();
 
 // getStockBlankTypes();
 
-// getStorageKinds();
+// getStorageKinds(document.Grain_Type);
 
 // getStorageType();
 
-getStockId();
+// getStockId();
 
 // getPersonTypes();
 // getPersonDocTypes();
 
-// getGrainProducts();
+// getGrainProducts(document.Grain_Kind);
 
 // getNormativeDocuments();
 
@@ -372,61 +529,95 @@ getStockId();
 // getQdocTypes();
 
 
-const cdz = {
-	businessProcessDefinitionKey: "gp-doc-import-bp",
-	startVariables: {
-		organizationId: "b5c43534-5a22-4c9f-a370-de904e11e983",
-		docs: [
-			{
-				blankType: "eTicket",
-				blankSeriesCode: "ЦФ",
-				blankNumber: "165273",
-				registrationNumber: "47",
-				storageKind: "83f995cc-ac69-4064-a784-640d3e4827ac",
-				storageType: "bcb0e274-0565-431f-8588-0159cd3a993e",
-				stockClientAgreement: "7f16208a-d7d5-4c79-8503-f99b083c335e",
-				stockClientInvoice: "Тестова накладна 3552",
-				stockClientAuthorizedPerson: "Тестова уповноважена особа",
-				stockClientAttorneyNumber: "Тестова довіреність 3552",
-				stockClientAttorneyDate: "2024-07-13",
-				product: "33411400-080b-408d-9988-d6e00ceed1cb",
-				productNormDoc: "f6cc5add-b7f0-4dc6-8e1e-452bb043dfbc",
-				productClass: "c2719670-ff80-4235-a8c2-6a81c6318e51",
-				productHarvestYear: "2024",
-				productRawWeight: "10000",
-				productNetWeight: "8000",
-				productNote: "Примітка",
-				productQis: [
-					{
-						productQi: "ef3ba9d4-f93c-4a33-8efa-b9185cbdac44",
-						productQiValue: "5.00"
-					},
-					{
-						productQi: "2113baca-879f-41fa-b677-0a1d48a4a409",
-						productQiValue: "4.80"
-					},
-					{
-						productQi: "e98c5a05-69d3-4b87-90c5-a4a0ac2c9745",
-						productQiValue: "не виявлено"
-					},
-					{
-						productQi: "388d7292-dc88-49d8-912b-72dba775644f",
-						productQiValue: "показник1: 10.23, показник2: 12.22"
-					}
-				],
-				productQdocType: "cfd2b87b-169f-436a-978a-276dc2df8d84",
-				productQdocNumber: "331",
-				productQdocStartDate: "2024-07-13",
-				productQdocIssuer: "ВТЛ даного складу",
-				productArrived: true,
-				productArrivalDate: "2025-01-13",
-				productKeepOnDemand: false,
-				productKeepUntilDate: "2025-01-13",
-				productIssuanceAmount: "8000",
-				assuranceOrg: "Тестова страхова компанія",
-				assuranceNumber: "Договір страхування 331",
-				assuranceCompensation: "1000000 грн"
-			},
-		]
-	}
-};
+
+const stockId = 'f69402fc-4d45-4c35-9832-cc2649024745';
+const blankType = "eTicket";
+
+
+
+
+// const storageTypeId = 'bcb0e274-0565-431f-8588-0159cd3a993e';
+const stockClientAgreementId = '7c7a8343-45ef-4614-8ab1-bad084c9a98e';
+// const grainProductId = 'c2db7c1e-e7ee-4bbf-afe4-560a97f66bc6';
+// const normativeDocumentId = 'bd498db5-4c5b-476c-bae9-a0ad866ef022';
+// const grainProductClass =  '63a260cf-0e2c-4f13-b688-bc15d7ab3733';
+const qdocTypeId = 'ef8134f6-a0f1-4689-8d1b-434515f6d9bb';
+
+
+const getAllData = async () => {
+	const storageKind = await getStorageKinds(document.Grain_Type);
+	const grainProduct = await getGrainProducts(document.Grain_Kind);
+	const NormativeDocuments = await getNormativeDocuments(grainProduct.grainProductId);
+	const grainProductClasses = await getGrainProductClasses(grainProduct.grainProductId);
+	const storageType = await getStorageType(document.Storage_Type);
+	const blankTypes = await getBlankTypes(document.Document_Type);
+	const stock = await getStockId();
+	console.log(stock.data);
+
+
+	const cdz = {
+		businessProcessDefinitionKey: "gp-doc-import-bp",
+		startVariables: {
+			organizationId: organizationId,
+			docs: [
+				{
+					blankType: blankTypes.blankTypeCode,
+					blankSeriesCode: document.Document_Seria_Number.substr(0,2),
+					blankNumber: document.Document_Seria_Number.substr(2,6),
+					registrationNumber: document.Current_Number,
+					storageKind: storageKind.storageKindId,
+					storageType: storageType.storageTypeId,
+					stockClientAgreement: stockClientAgreementId,
+					stockClientInvoice: "",
+					stockClientAuthorizedPerson: "",
+					stockClientAttorneyNumber: "",
+					stockClientAttorneyDate: "",
+					product: grainProduct.grainProductId,
+					productNormDoc: NormativeDocuments.normativeDocumentId,
+					productClass: grainProductClasses.grainProductClass,
+					productHarvestYear: document.Harvest_Year,
+					productRawWeight: document.Grain_Weight_All,
+					productNetWeight: document.Grain_Weight,
+					productNote: document.Description,
+					productQis: [
+						{
+							productQi: "2236540b-f927-45e5-9ea3-6f0ecef59555",
+							productQiValue: "13.3"
+						},
+						{
+							productQi: "2079cbf2-6e36-4f86-a535-d95da2ab25ed",
+							productQiValue: "2.00"
+						},
+						{
+							productQi: "86c75224-ea8b-4774-8373-89e7be155769",
+							productQiValue: "6.40"
+						}
+					],
+					productQdocType: qdocTypeId,
+					productQdocNumber: document.Attest_Document_Number,
+					productQdocStartDate: document.Attest_Document_Date,
+					productQdocIssuer: document.Attest_Document_Issuer,
+					productArrived: true,
+					productArrivalDate: document.Grain_Receive_Date,
+					productKeepOnDemand: false,
+					productKeepUntilDate: document.Shelf_Life_Date,
+					productIssuanceAmount: document.Grain_For_Issue,
+					assuranceOrg: "",
+					assuranceNumber: "",
+					assuranceCompensation: ""
+				},
+			]
+		}
+	};	
+
+	console.log('---------------------------------------------------');
+
+	console.log(cdz.startVariables.docs);
+}
+
+
+
+
+
+
+getAllData();
