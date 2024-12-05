@@ -209,6 +209,8 @@ const getStockId = async () => {
 
 	const token = await getToken();
 
+	// console.log(token);
+
 	const url = '/start-bp';
 
 	const data = {
@@ -228,13 +230,93 @@ const getStockId = async () => {
 
 	const stockId = await instance.post(url, data);
 
-	const obj = JSON.parse(stockId.data.resultVariables.data);
+	const obj = JSON.parse(stockId.data['resultVariables']['data']);
+	const clients = obj[0].clients;
 
-	// console.log(obj[0]);
+	const stock = clients.find(item => item.stockClientEdrpou === '30618353');
 
-	return stockId;
+	// console.log(stock.stockClientId);
+
+	return stock;
 
 }
+
+// const test = () => {
+// 	const arr = '[
+//   '[{"organizationId":"1f1af0cf-2549-49b9-85ad-426c730429d4",
+//   	 "stockShortName":"ТОВ \\"САРАТСЬКИЙ КОМБІНАТ ХЛІБОПРОДУКТІВ\\"",
+// 	 "stockName":"ТОВАРИСТВО З ОБМЕЖЕНОЮ ВІДПОВІДАЛЬНІСТЮ  \\"САРАТСЬКИЙ КОМБІНАТ ХЛІБОПРОДУКТІВ\\"",
+// 	 "stockAffiliateName":null,
+// 	 "stockAddress":"68200, Одеська обл., Саратський р-н, смт. Сарата, вул. Заводська, буд. 9",
+// 	 "stockCode":"1534",
+// 	 "stockIdOld":3462,
+// 	 "stockEdrpou":"41198678",
+// 	 "stockRegion":{
+// 			"katottgLevel4":null,
+// 			"katottgLevel5":null,
+// 			"katottgLive":true,
+// 			"katottgId":"2e74ade8-c3e7-45c8-a08f-f1208dc431a3",
+// 			"katottgCategory":"O",
+// 			"katottgName":"Одеська",
+// 			"katottgLevel1":"UA51000000000030770",
+// 			"katottgLevel2":null,
+// 			"katottgLevel3":null},
+// 	"stockArea":{
+// 		"katottgLevel4":null,
+// 		"katottgLevel5":null,
+// 		"katottgLive":false,
+// 		"katottgId":"ee9b84a3-425f-4b6c-b9af-ec1a4e3c6355",
+// 		"katottgCategory":"P",
+// 		"katottgName":"Саратський",
+// 		"katottgLevel1":"UA51000000000030770",
+// 		"katottgLevel2":"саратський",
+// 		"katottgLevel3":null},
+// 		"stockId":"4df4cb8b-bd61-4451-88df-74c4c75cc7fa",
+// 		"clients":[
+// 				{"stockClientNameShort":"СВК \\"Борисівський\\"",
+// 				"stockClientIdOld":375576,
+// 				"stockClientPersonDocumentType":null,
+// 				"stockClientIpn":null,
+// 				"stockClientPersonType":{
+// 					"personTypeLive":true,
+// 					"personTypeId":"47d58861-3781-477f-83ba-cdd16122dc4f",
+// 					"personTypeCode":"Legal_Entity",
+// 					"personTypeIdOld":1,
+// 					"personTypeName":"Юридична особа"},
+// 					"stockClientAgreementNumber":"27",
+// 					"stockClientDocumentIssueDate":null,
+// 					"stockClientName":"СВК \\"Борисівський\\"",
+// 					"stockClientAgreementId":"e40adba3-fecf-4727-ae3e-b14c588c62ef",
+// 					"stockClientId":"0d5cca50-e4f0-405a-a571-3f25095a0243",
+// 					"stockClientEdrpou":"32199812",
+// 					"stockClientDocumentIssuingAuthority":null,
+// 					"stockClientDocumentNumber":null,
+// 					"stockClientAddress":"68112Одеська обл,Татарбунарський р-н,с.Борисівка,вул Жовтнева,78",
+// 					"stockClientAgreementEndDate":"2025-04-30",
+// 					"stockClientAgreementStartDate":"2023-06-27",
+// 					"stockClientCountry":{
+// 						"countryId":"29f4a042-3979-4ba2-ab9e-d207997b34ad",
+// 						"countryName":"Україна",
+// 						"countryLive":true,
+// 						"countryIdOld":1,
+// 						"countryCode":"UKR",
+// 						"countryPhoneCode":null}},{
+// 					"stockClientNameShort":"СФГ \\"МарІчка\\"",
+// 					"stockClientIdOld":558946,
+// 					"stockClientPersonDocumentType":null,
+// 					"stockClientIpn":null,
+// 					"stockClientPersonType":{
+// 						"personTypeLive":true,
+// 						"personTypeId":"47d58861-3781-477f-83ba-cdd16122dc4f",
+// 						"personTypeCode":"Legal_Entity",
+// 						"personTypeIdOld":1,
+// 						"personTypeName":"Юридична особа"},
+// 					"stockClientAgreementNumber":"1",
+// 					"stockClientDocumentIssueDate":null,
+// 							"stockClientName":"СФГ \\"МарІчка\\"","stockClientAgreementId":"ca4c1161-2a43-4e15-8450-cf4b31f87dc9","stockClientId":"412ce99f-b3df-467b-a251-4faedbb9e4f5","stockClientEdrpou":"25948697","stockClientDocumentIssuingAuthority":null,"stockClientDocumentNumber":null,"stockClientAddress":"68152, 
+// Одеська обл., Татарбунарський р-н., с. Маразліївка, вул. Садова, буд.29-А","stockClientAgreementEndDate":"2025-04-30","stockClientAgreementStartDate":"2023-06-01","stockClientCountry":{"countryId":"29f4a042-3979-4ba2-ab9e-d207997b34ad","countryName":"Україна","countryLive":true,"countryIdOld":1,"countryCode":"UKR","countryPhoneCode":null}},{"stockClientNameShort":"ПП \\" Перемога ЛП \\"","stockClientIdOld":558990,"stockClientPersonDocumentType":null,"stockClientIpn":null,"stockClientPersonType":{"personTypeLive":true,"personTypeId":"47d58861-3781-477f-83ba-cdd16122dc4f","personTypeCode":"Legal_Entity","personTypeIdOld":1,"personTypeName":"Юридична особа"},"stockClientAgreementNumber":"7","stockClientDocumentIssueDate":null,"stockClientName":"ПП \\" Перемога ЛП \\"","stockClientAgreementId":"3a6a23d2-0993-4226-82db-6341ae1e11bb","stockClientId":"ccd98014-4958-4519-928d-d3fc44f2a342","stockClientEdrpou":"37232204","stockClientDocumentIssuingAuthority":null,"stockClientDocumentNumber":null,"stockClientAddress":"Україна, 68200, Одеська обл., смт Сарата, вул. Чкалова,66","stockClientAgreementEndDate":"2025-04-30","stockClientAgreementStartDate":"2024-06-24","stockClientCountry":{"countryId":"29f4a042-3979-4ba2-ab9e-d207997b34ad","countryName":"Україна","countryLive":true,"countryIdOld":1,"countryCode":"UKR","countryPhoneCode":null}},{"stockClientNameShort":"ФЕРМЕРСЬКЕ ГОСПОДАРСТВО \\"ПАНІОТ\\"","stockClientIdOld":594136,"stockClientPersonDocumentType":null,"stockClientIpn":null,"stockClientPersonType":{"personTypeLive":true,"personTypeId":"47d58861-3781-477f-83ba-cdd16122dc4f","personTypeCode":"Legal_Entity","personTypeIdOld":1,"personTypeName":"Юридична особа"},"stockClientAgreementNumber":"14","stockClientDocumentIssueDate":null,"stockClientName":"ФЕРМЕРСЬКЕ ГОСПОДАРСТВО \\"ПАНІОТ\\"","stockClientAgreementId":"34a1e863-1d1e-4615-ac54-714b8c2c208c","stockClientId":"65add56a-afc8-4d87-8c6e-d82680a275fe","stockClientEdrpou":"35090962","stockClientDocumentIssuingAuthority":null,"stockClientDocumentNumber":null,"stockClientAddress":"68232, Одеська обл., Саратський р-н, с.Плахтіївка, вул.Миру,79","stockClientAgreementEndDate":"2025-04-30","stockClientAgreementStartDate":"2023-06-21","stockClientCountry":{"countryId":"29f4a042-3979-4ba2-ab9e-d207997b34ad","countryName":"Україна","countryLive":true,"countryIdOld":1,"countryCode":"UKR","countryPhoneCode":null}},{"stockClientNameShort":"ФОП Колісник Юрій Іванович","stockClientIdOld":608024,"stockClientPersonDocumentType":null,"stockClientIpn":null,"stockClientPersonType":{"personTypeLive":true,"personTypeId":"47d58861-3781-477f-83ba-cdd16122dc4f","personTypeCode":"Legal_Entity","personTypeIdOld":1,"personTypeName":"Юридична особа"},"stockClientAgreementNumber":"11","stockClientDocumentIssueDate":null,"stockClientName":"ФОП Колісник Юрій Іванович","stockClientAgreementId":"533c7014-2be6-4d14-99d5-3fa990a75fc8","stockClientId":"a21902e0-4773-4f65-87f4-ea6b54712ef2","stockClientEdrpou":"2321313679","stockClientDocumentIssuingAuthority":null,"stockClientDocumentNumber":null,"stockClientAddress":"Украина, 68200, Одеська обл., Саратський р-н, смт Сарата, вул.Леніна, буд.17, кв.1","stockClientAgreementEndDate":"2025-04-30","stockClientAgreementStartDate":"2023-06-15","stockClientCountry":{"countryId":"29f4a042-3979-4ba2-ab9e-d207997b34ad","countryName":"Україна","countryLive":true,"countryIdOld":1,"countryCode":"UKR","countryPhoneCode":null}},{"stockClientNameShort":"ТОВ \\"Єнікіой \\"","stockClientIdOld":610785,"stockClientPersonDocumentType":null,"stockClientIpn":null,"stockClientPersonType":{"personTypeLive":true,"personTypeId":"47d58861-3781-477f-83ba-cdd16122dc4f","personTypeCode":"Legal_Entity","personTypeIdOld":1,"personTypeName":"Юридична особа"},"stockClientAgreementNumber":"2","stockClientDocumentIssueDate":null,"stockClientName":"ТОВ \\"Єнікіой \\"","stockClientAgreementId":"00b7311d-e209-4e91-86a0-aa235e5cf6c1","stockClientId":"ef910bba-c09a-409c-9a30-debb2a013070","stockClientEdrpou":"03766033","stockClientDocumentIssuingAuthority":null,"stockClientDocumentNumber":null,"stockClientAddress":"Украина, 68320, Одеська обл., Кілійський р-н, с. Новоселівка, вул. Бессарабська,буд. 65 А","stockClientAgreementEndDate":"2025-04-30","stockClientAgreementStartDate":"2024-06-10","stockClientCountry":{"countryId":"29f4a042-3979-4ba2-ab9e-d207997b34ad","countryName":"Україна","countryLive":true,"countryIdOld":1,"countryCode":"UKR","countryPhoneCode":null}},{"stockClientNameShort":"ТОВ \\"Єнікіой \\"","stockClientIdOld":610785,"stockClientPersonDocumentType":null,"stockClientIpn":null,"stockClientPersonType":{"personTypeLive":true,"personTypeId":"47d58861-3781-477f-83ba-cdd16122dc4f","personTypeCode":"Legal_Entity","personTypeIdOld":1,"personTypeName":"Юридична особа"},"stockClientAgreementNumber":"1","stockClientDocumentIssueDate":null,"stockClientName":"ТОВ \\"Єнікіой \\"","stockClientAgreementId":"a40040aa-7965-474e-83c9-96e44d44dcd8","stockClientId":"ef910bba-c09a-409c-9a30-debb2a013070","stockClientEdrpou":"03766033","stockClientDocumentIssuingAuthority":null,"stockClientDocumentNumber":null,"stockClientAddress":"Украина, 68320, Одеська обл., Кілійський р-н, с. Новоселівка, вул. Бессарабська,буд. 65 А","stockClientAgreementEndDate":"2025-04-30","stockClientAgreementStartDate":"2024-04-10","stockClientCountry":{"countryId":"29f4a042-3979-4ba2-ab9e-d207997b34ad","countryName":"Україна","countryLive":true,"countryIdOld":1,"countryCode":"UKR","countryPhoneCode":null}},{"stockClientNameShort":"ФГ \\"КОШЕЛЬНИК \\"","stockClientIdOld":625070,"stockClientPersonDocumentType":null,"stockClientIpn":null,"stockClientPersonType":{"personTypeLive":true,"personTypeId":"47d58861-3781-477f-83ba-cdd16122dc4f","personTypeCode":"Legal_Entity","personTypeIdOld":1,"personTypeName":"Юридична особа"},"stockClientAgreementNumber":"9","stockClientDocumentIssueDate":null,"stockClientName":"ФГ \\"КОШЕЛЬНИК \\"","stockClientAgreementId":"c3c3af68-bfdd-4377-8ba2-2d8d665afa41","stockClientId":"3cf5b726-90cc-47ea-a8ab-c56da6999114","stockClientEdrpou":"43981042","stockClientDocumentIssuingAuthority":null,"stockClientDocumentNumber":null,"stockClientAddress":"Укр24","stockClientCountry":{"countryId":"29f4a042-3979-4ba2-ab9e-d207997b34ad","countryName":"Україна","countryLive":true,"countryIdOld":1,"countryCode":"UKR","countryPhoneCode":null}},{"stockClientNameShort":"СФГ \\"САМІ \\"","stockClientIdOld":628257,"stockClientPersonDocumentType":null,"stockClientIpn":null,"stockClientPersonType":{"personTypeLive":true,"personTypeId":"47d58861-3781-477f-83ba-cdd16122dc4f","personTypeCode":"Legal_Entity","personTypeIdOld":1,"personTypeName":"Юридична особа"}]'
+
+
 
 
 // п 4.1
@@ -552,7 +634,7 @@ const getAllData = async () => {
 	const storageType = await getStorageType(document.Storage_Type);
 	const blankTypes = await getBlankTypes(document.Document_Type);
 	const stock = await getStockId();
-	console.log(stock.data);
+	// console.log(stock.data);
 
 
 	const cdz = {
@@ -612,7 +694,7 @@ const getAllData = async () => {
 
 	console.log('---------------------------------------------------');
 
-	console.log(cdz.startVariables.docs);
+	// console.log(cdz.startVariables.docs);
 }
 
 
