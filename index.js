@@ -8,39 +8,41 @@ const xml = `
 <Data>
 <Document>
 <!--Серія та номер документу-->
-<Document_Seria_Number>ЦФ165273</Document_Seria_Number>
+<Document_Seria_Number>ЦФ165278</Document_Seria_Number>
 <!--Поточній номер документу-->
-<Current_Number>47</Current_Number>
+<Current_Number>41</Current_Number>
 <!--Тип документа 1: Складська квитанція-->
 <Document_Type>4</Document_Type>
 <!--Номер реєстру накладних-->
-<Invoice_Number>1047</Invoice_Number>
+<Invoice_Number>1093</Invoice_Number>
 <!--Дата прийняття зерна-->
-<Grain_Receive_Date>28.11.2024 00:00:00</Grain_Receive_Date>
+<Grain_Receive_Date>04.12.2024 00:00:00</Grain_Receive_Date>
 <!--Вид зберігання 1: Загальне-->
 <Grain_Type>1</Grain_Type>
 <!--Ідентифікатор виду зерна-->
-<Grain_Kind>38</Grain_Kind>
+<Grain_Kind>404</Grain_Kind>
 <!--Ідентифікатор класу зерна-->
-<Grain_Class>130</Grain_Class>
+<Grain_Class>437</Grain_Class>
 <!--Рік врожаю-->
 <Harvest_Year>2024</Harvest_Year>
 <!--Вага зерна залікова-->
-<Grain_Weight>594660</Grain_Weight>
+<Grain_Weight>24986</Grain_Weight>
 <!--Вага зерна фізична-->
-<Grain_Weight_All>594660</Grain_Weight_All>
+<Grain_Weight_All>25700</Grain_Weight_All>
 <!--інші показники якості зерна-->
-<Grain_Quality_Other> Органическая примесь 0,4 Поврежденные 0,6 Проход сита 1,6 Щуплые  Битые и поеденные 5,8</Grain_Quality_Other>
+<Grain_Quality_Other> Битые и поеденные 2,2 Зерна других культур  Кислотное число  Крупная примесь  Масличная примесь 13,2 Натура 385 Обрушенные и частично обрушенные 11 Органическая примесь 2,4 Поврежденные  Проросшие  Проход сита 3,3</Grain_Quality_Other>
 <!--Кількість зерна для видачі-->
 <Grain_For_Issue>згідно акта розрахунку</Grain_For_Issue>
 <!--Номер документу, що засвідчує якість зерна-->
-<Attest_Document_Number>423</Attest_Document_Number>
+<Attest_Document_Number>438</Attest_Document_Number>
 <!--Назва документу, що засвідчує якість зерна-->
 <Attest_Document_Name>Аналізна картка</Attest_Document_Name>
 <!--Дата документу, що засвідчує якість зерна-->
-<Attest_Document_Date>28.11.2024 00:00:00</Attest_Document_Date>
+<Attest_Document_Date>04.12.2024 00:00:00</Attest_Document_Date>
 <!--Ким видано документ, що засвідчує якість зерна-->
 <Attest_Document_Issuer>Товариство з обмеженою відповідальністю "Саратський КХП"</Attest_Document_Issuer>
+<!--Кінцева дата зберігання-->
+<Shelf_Life_Date>30.04.2025 00:00:00</Shelf_Life_Date>
 <!--Тип зберігання-->
 <Storage_Type>2</Storage_Type>
 <!--Примітки про зерно-->
@@ -48,15 +50,15 @@ const xml = `
 <!--тип особи-->
 <Client_Type>1</Client_Type>
 <!--Код ЄДРПОУ/ідентиф. код клиента-->
-<Client_Code>45369450</Client_Code>
+<Client_Code>31454383</Client_Code>
 <!--Назва організації/ПІБ особи клієнта-->
-<Client_Name>ТОВ "ВЕСТ ЕУНОМІЯ ГРУП"</Client_Name>
+<Client_Name>ТОВ "КЕРНЕЛ-ТРЕЙД"</Client_Name>
 <!--Адреса клієнта-->
-<Client_Address>Украина, 46001, Тернопільська, Тернопільській, Тернопіль, Лукіяновича Дениса, дом № 8</Client_Address>
+<Client_Address>Украина, 01001, м.Київ, провулок Шевченка Тараса,буд.3</Client_Address>
 <!--Номер договору з клієнтом-->
-<Agreement_Number></Agreement_Number>
+<Agreement_Number>42</Agreement_Number>
 <!--Дата договору з клієнтом-->
-<Agreement_Date>.. 00:00:00</Agreement_Date>
+<Agreement_Date>01.05.2024 00:00:00</Agreement_Date>
 <!--Надходження зерна:-->
 <!--1 - Так-->
 <!--0 - Ні-->
@@ -67,25 +69,19 @@ const xml = `
 <GrainParameter>
 <Id>7</Id>
 <TypeOfValue>4</TypeOfValue>
-<Value>виявлено</Value>
+<Value>не виявлено</Value>
 </GrainParameter>
 <!--влажность зерна-->
 <GrainParameter>
 <Id>8</Id>
 <TypeOfValue>3</TypeOfValue>
-<Value>13,30</Value>
-</GrainParameter>
-<!--зерновая примесь-->
-<GrainParameter>
-<Id>9</Id>
-<TypeOfValue>3</TypeOfValue>
-<Value>6,40</Value>
+<Value>8,00</Value>
 </GrainParameter>
 <!--сорность-->
 <GrainParameter>
 <Id>10</Id>
 <TypeOfValue>3</TypeOfValue>
-<Value>2,00</Value>
+<Value>5,70</Value>
 </GrainParameter>
 </GrainParameters>
 </Document>
@@ -205,11 +201,9 @@ const getPersonDocTypes = async () => {
 
 // п.3.4
 
-const getStockId = async () => {
+const getStockId = async (Client_Code) => {
 
 	const token = await getToken();
-
-	// console.log(token);
 
 	const url = '/start-bp';
 
@@ -233,9 +227,7 @@ const getStockId = async () => {
 	const obj = JSON.parse(stockId.data['resultVariables']['data']);
 	const clients = obj[0].clients;
 
-	const stock = clients.find(item => item.stockClientEdrpou === '30618353');
-
-	// console.log(stock.stockClientId);
+	const stock = clients.find(item => item.stockClientEdrpou == Client_Code);
 
 	return stock;
 
@@ -480,7 +472,7 @@ const getNormativeDocuments = async (productId) => {
 
 // п 4.6
 
-const getGrainProductClasses = async (productId) => {
+const getGrainProductClasses = async (productId, classNumber) => {
 
 	const token = await getToken();
 
@@ -493,18 +485,31 @@ const getGrainProductClasses = async (productId) => {
 
 	const grainProductClasses = await instance.get(url);
 
-	return grainProductClasses.data[0];
+	let grainProductClassCode = '';
+
+	switch (classNumber) {
+		case 417:
+			grainProductClassCode = '1';
+			break;
+		case 398:
+			grainProductClassCode = '2';
+			break;
+		case 437:
+			grainProductClassCode = 'NotClassed';
+			break;
+	}
+
+	const grainProductClass = grainProductClasses.data.find(item => item.grainProductClassCode === grainProductClassCode);
+	console.log(grainProductClass);
+
+	return grainProductClass;
 
 }
 
 
 //  п 4.7
 
-const getProductQis = async () => {
-
-	const grainProductId = 'c2db7c1e-e7ee-4bbf-afe4-560a97f66bc6';
-	const blankTypeId = '5772e505-bc06-42bd-8133-a202317f7a08';
-	const grainProductClass = '63a260cf-0e2c-4f13-b688-bc15d7ab3733';
+const getProductQis = async (grainProductId, blankTypeId, grainProductClass, GrainParameters) => {
 
 	const token = await getToken();
 
@@ -517,13 +522,54 @@ const getProductQis = async () => {
 
 	const productQis = await instance.get(url);
 
-	console.log(productQis.data);
+	let gpDocQiName = '';
+	const QiArray = [];
+
+	GrainParameters.GrainParameter.map(item => {
+		switch (item.Id) {
+			case 4:
+				gpDocQiName = 'Белок';
+				break;
+			case 5:
+				gpDocQiName = 'Клейковина (якість)';
+				break;
+			case 6:
+				gpDocQiName = 'Клейковина (кількість)';
+				break;	
+			case 7:
+				gpDocQiName = 'Зараженість';
+				break;
+			case 8:
+				gpDocQiName = 'Вологість';
+				break;
+			case 9:
+				gpDocQiName = 'Зернова домішка';
+				break;
+			case 10:
+				gpDocQiName = 'Сміттєва домішка';
+				break;
+		}
+
+		const QiValue = item.Value;
+		const {gpDocQiId} = productQis.data.find(item => item.gpDocQiName === gpDocQiName);
+
+		QiArray.push({
+						productQi: gpDocQiId,
+						productQiValue: QiValue
+		});
+		
+		// console.log(QiArray);
+	})
+
+	// console.log(productQis.data);
+
+	return QiArray;
 
 }
 
 // п 4.8
 
-const getQdocTypes = async () => {
+const getQdocTypes = async (Attest_Document_Name) => {
 
 	const token = await getToken();
 
@@ -536,8 +582,15 @@ const getQdocTypes = async () => {
 
 	const qdocTypes = await instance.get(url);
 
-	console.log(qdocTypes);
+	let qdocTypeCode = '';
 
+	if (Attest_Document_Name === 'Аналізна картка') {
+		qdocTypeCode = 'AnalisCard';
+	}
+
+	const qdocType = qdocTypes.data.find(item => item.qdocTypeCode === qdocTypeCode);
+
+	return qdocType;
 }
 
 // п 4.9
@@ -561,11 +614,20 @@ const getStockBlankTypes = async () => {
 	console.log(stockBlankTypes.data);
 }
 
+const formatDate = (dateStr) => {
+
+	const dd = dateStr.substr(0, 2);
+	const mm = dateStr.substr(3, 2);
+	const yyyy = dateStr.substr(6, 4);
+
+	return yyyy + '-' + mm + '-' + dd;
+}
 
 
 
 
-const importCDZ = async () => {
+
+const importCDZ = async (cdz) => {
 	const token = await getToken();
 
 	const instance = axios.create({
@@ -612,30 +674,19 @@ const importCDZ = async () => {
 
 
 
-const stockId = 'f69402fc-4d45-4c35-9832-cc2649024745';
-const blankType = "eTicket";
-
-
-
-
-// const storageTypeId = 'bcb0e274-0565-431f-8588-0159cd3a993e';
-const stockClientAgreementId = '7c7a8343-45ef-4614-8ab1-bad084c9a98e';
-// const grainProductId = 'c2db7c1e-e7ee-4bbf-afe4-560a97f66bc6';
-// const normativeDocumentId = 'bd498db5-4c5b-476c-bae9-a0ad866ef022';
-// const grainProductClass =  '63a260cf-0e2c-4f13-b688-bc15d7ab3733';
-const qdocTypeId = 'ef8134f6-a0f1-4689-8d1b-434515f6d9bb';
-
-
 const getAllData = async () => {
 	const storageKind = await getStorageKinds(document.Grain_Type);
 	const grainProduct = await getGrainProducts(document.Grain_Kind);
 	const NormativeDocuments = await getNormativeDocuments(grainProduct.grainProductId);
-	const grainProductClasses = await getGrainProductClasses(grainProduct.grainProductId);
+	const grainProductClasses = await getGrainProductClasses(grainProduct.grainProductId, document.Grain_Class);
 	const storageType = await getStorageType(document.Storage_Type);
 	const blankTypes = await getBlankTypes(document.Document_Type);
-	const stock = await getStockId();
-	// console.log(stock.data);
-
+	const stock = await getStockId(document.Client_Code);
+	const qdocType = await getQdocTypes(document.Attest_Document_Name);
+	const productQis = await getProductQis(grainProduct.grainProductId, 
+											blankTypes.blankTypeId, 
+											grainProductClasses.grainProductClass,
+											document.GrainParameters);
 
 	const cdz = {
 		businessProcessDefinitionKey: "gp-doc-import-bp",
@@ -649,7 +700,7 @@ const getAllData = async () => {
 					registrationNumber: document.Current_Number,
 					storageKind: storageKind.storageKindId,
 					storageType: storageType.storageTypeId,
-					stockClientAgreement: stockClientAgreementId,
+					stockClientAgreement: stock.stockClientAgreementId,
 					stockClientInvoice: "",
 					stockClientAuthorizedPerson: "",
 					stockClientAttorneyNumber: "",
@@ -661,28 +712,15 @@ const getAllData = async () => {
 					productRawWeight: document.Grain_Weight_All,
 					productNetWeight: document.Grain_Weight,
 					productNote: document.Description,
-					productQis: [
-						{
-							productQi: "2236540b-f927-45e5-9ea3-6f0ecef59555",
-							productQiValue: "13.3"
-						},
-						{
-							productQi: "2079cbf2-6e36-4f86-a535-d95da2ab25ed",
-							productQiValue: "2.00"
-						},
-						{
-							productQi: "86c75224-ea8b-4774-8373-89e7be155769",
-							productQiValue: "6.40"
-						}
-					],
-					productQdocType: qdocTypeId,
+					productQis: productQis,
+					productQdocType: qdocType.qdocTypeId,
 					productQdocNumber: document.Attest_Document_Number,
-					productQdocStartDate: document.Attest_Document_Date,
+					productQdocStartDate: formatDate(document.Attest_Document_Date),
 					productQdocIssuer: document.Attest_Document_Issuer,
 					productArrived: true,
-					productArrivalDate: document.Grain_Receive_Date,
-					productKeepOnDemand: false,
-					productKeepUntilDate: document.Shelf_Life_Date,
+					productArrivalDate: (document.Grain_Receive_Date ? formatDate(document.Grain_Receive_Date ) : ""),
+					productKeepOnDemand: true,
+					productKeepUntilDate: (document.Shelf_Life_Date ?  formatDate(document.Shelf_Life_Date) : ""),
 					productIssuanceAmount: document.Grain_For_Issue,
 					assuranceOrg: "",
 					assuranceNumber: "",
@@ -694,7 +732,10 @@ const getAllData = async () => {
 
 	console.log('---------------------------------------------------');
 
-	// console.log(cdz.startVariables.docs);
+	console.log(cdz.startVariables.docs);
+
+	// importCDZ(cdz);
+
 }
 
 
@@ -703,3 +744,7 @@ const getAllData = async () => {
 
 
 getAllData();
+
+// console.log(formatDate(document.Shelf_Life_Date));
+
+// formatDate(document.Grain_Receive_Date);
