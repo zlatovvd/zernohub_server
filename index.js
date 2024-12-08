@@ -100,11 +100,11 @@ const regName = 'mrwdggas';
 
 // Продакс сервер
 
-const clientId = 'zernohub-api-9sd6tkv';
+// const clientId = 'zernohub-api-9sd6tkv';
 
-const clientSecret = 'nkvbhjk3hr73t8wamktalb99dzyqp9y4req6';
+// const clientSecret = 'nkvbhjk3hr73t8wamktalb99dzyqp9y4req6';
 
-const baseUrl = 'krrt.ncr.gov.ua';
+// const baseUrl = 'krrt.ncr.gov.ua';
 
 const organizationId = '1f1af0cf-2549-49b9-85ad-426c730429d4';
 
@@ -112,11 +112,11 @@ const organizationId = '1f1af0cf-2549-49b9-85ad-426c730429d4';
 
 // Тестовий сервер
 
-// const clientId = 'sv-test';
+const clientId = 'sv-test';
 
-// const clientSecret = 'me9fqi3wbdzvghg52outqdibi656p9ezrck6';
+const clientSecret = 'me9fqi3wbdzvghg52outqdibi656p9ezrck6';
 
-// const baseUrl = 'krrt-dev.ncr.gov.ua';
+const baseUrl = 'krrt-dev.ncr.gov.ua';
 
 
 // п2.1
@@ -177,8 +177,9 @@ const getCountries = async () => {
 
   const countries = await instance.get("/api-person-doc-types");
 
-  console.log(countries);
+  console.table(countries.data);
 }
+// getCountries();
 
 
 // п 3.3
@@ -611,7 +612,7 @@ const getStockBlankTypes = async () => {
 	console.log("-----------------Answer--------------------------------------");
 	console.log(stockId);
 	console.log("-----------------Answer 2-------------------------------------");
-	console.log(stockBlankTypes.data);
+	console.table(stockBlankTypes.data);
 }
 
 const formatDate = (dateStr) => {
@@ -743,7 +744,7 @@ const getAllData = async () => {
 
 
 
-getAllData();
+// getAllData();
 
 // console.log(formatDate(document.Shelf_Life_Date));
 
